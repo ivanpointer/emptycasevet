@@ -1,4 +1,4 @@
-package b
+package allowheadercomment
 
 func g(x int) {
 	switch x {
