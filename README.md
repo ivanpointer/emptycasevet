@@ -88,3 +88,47 @@ Examples:
 - Stable: small, focused analyzer with a minimal API surface (single exported `Analyzer`).
 - Performance: single-pass AST walk over switch/type switch nodes; no type-checker loading nor heavy allocations.
 - Maintenance: unit tests cover both positive and negative cases; semantic versioning will be used for releases.
+
+
+## Why this exists
+Accidentally leaving a non-default case empty is easy when refactoring a switch (e.g., splitting values across cases or removing code). This linter nudges you to either:
+- Merge values into a single case (e.g., case a, b:), or
+- Leave an intentional comment in the case body to document that it's deliberately empty.
+
+## Type switch example
+```go
+type T interface{}
+
+func g(v T) {
+    switch v.(type) {
+    case int: // flagged: empty case body; did you mean `case a, b:`?
+    case string:
+        // ok: intentional, documented
+    default:
+        // default may be empty
+    }
+}
+```
+
+## Exit status
+- Exits with code 0 if no issues are found
+- Exits with code >0 (non-zero) if any diagnostics are reported
+This makes it safe to use in CI to fail builds when empty cases are detected.
+
+## Go compatibility
+- Requires Go 1.24+
+- Developed and tested with Go 1.24.x
+- Uses the standard go/analysis API and does not rely on unstable internals
+
+## Contributing
+Contributions are welcome! Please:
+- Open an issue describing the improvement or bug.
+- Include tests for behavior changes.
+- Keep the analyzer minimal and focused to reduce false positives and runtime overhead.
+
+## Releases
+Stable releases are tagged using semantic versioning (v0.x.y initially). Use a tagged version in CI for reproducible builds:
+```bash
+go install github.com/ivanpointer/emptycasevet/cmd/emptycasevet@v0.1.0
+```
+If you don’t need pinning, @latest is fine for local use.

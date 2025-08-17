@@ -1,4 +1,4 @@
-package a
+package emptycasesbasic
 
 func f(x any) {
 	switch x.(type) {
